@@ -1,0 +1,16 @@
+language: python
+
+python:
+  - "3.6"
+  - "3.7"
+  - "3.8"
+
+install:
+  - pip install -r requirements.txt
+  - pip install pytest-cov pytest codecov
+
+script:
+  - pytest --cov=./simple_network_sim tests
+ 
+after_success:
+  - codecov
