@@ -347,7 +347,8 @@ class MixingMatrix:
         return "\n".join(f"{str(key)}: {str(row)}" for key, row in self._matrix.items())
 
     def __iter__(self):
-        """
+        """Iterate by row.
+        
         Iterator that iterates over the matrix keys (a key points to a row). The values returned by the iterator will
         all be strings, since that's how the public interface when indexing the matrix.
         """
