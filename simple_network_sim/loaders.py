@@ -1,3 +1,5 @@
+"""This module contains functions and classes to read and check input files."""
+
 import csv
 import json
 import math
@@ -5,14 +7,13 @@ import re
 
 import networkx as nx
 
-
 # CurrentlyInUse
 def _checkAgeParameters(agesDictionary):
-    """
-    :param agesDictionary:
-    :return:
+    """Check the consistency of data within the ages dictionary.
 
-    Checks the consistency of data within the ages dictionary
+    :param agesDictionary:
+    :type agesDictionary: dictionary
+    :return: agesDictionary
     """
     all_compartments = None
     for age, compartments in agesDictionary.items():
@@ -31,8 +32,13 @@ def _checkAgeParameters(agesDictionary):
 
 # CurrentlyInUse
 def readCompartmentRatesByAge(fp):
-    """
-    :param fp: file-like object that contains the age transition data
+    """Read a file containing a list of age-specific epidemiological parameters (**deprecated**).
+    
+    Epidemiological parameters are transition rates between or out of epidemiological compartments,
+    here they differ by age group.
+
+    :param fp: Age transition data
+    :type fp: file-like object
     :return: A dictionary of in the format {age: {src: {dest: prob}}}
     """
     agesDictionary = {}
@@ -51,6 +57,14 @@ def readCompartmentRatesByAge(fp):
 # CurrentlyInUse
 # This needs exception-catching, and probably shouldn't have hard-coded column indices.
 def readPopulationAgeStructured(fp):
+    """Read a file containing population data.
+
+    Population is labelled by node ID, sex and age. Sex is currently ignored.
+    
+    :param fp: Population data
+    :type fp: file-like object
+    :return: A dictionary in the format {health_board: {age: pop, age: pop, age: pop}}
+    """
     dictOfPops = {}
 
     fieldnames = ["Health_Board", "Sex", "Age", "Total"]
@@ -75,6 +89,14 @@ def readPopulationAgeStructured(fp):
 # making this general to include arbitrary future attributes.  Location is the primary one for right now
 # keeps them in a dictionary and returns that.  Keys are
 def readNodeAttributesJSON(filename):
+    """Read a file containing node (health board) attributes.
+
+    This might include health board name and geographic co-ordinates.
+
+    :param filename: Health board attributes in json format. 
+    :type filename: file-like object
+    :return: Dictionary of health board attributes.
+    """
     f = open(filename,)
     node_data = json.load(f)
     return node_data
@@ -87,11 +109,25 @@ def readNodeAttributesJSON(filename):
 # it should return a networkx graph, ideally with weighted edges
 # eventual replacement with HDF5 reading code?
 def genGraphFromContactFile(filename):
+    """Read a file containing edge weights between nodes.
+
+    Pairs of nodes are listed in the file by source, destination and weight.
+
+    :param filename: Weighted edge list in `.csv` format.
+    :type filename: file-like object
+    :return: `networkx.classes.digraph.DiGraph` object representing the graph.
+    """
     G = nx.read_edgelist(filename, create_using=nx.DiGraph, delimiter=",", data=(('weight', float),))
     return G
 
 
 def readInitialInfections(fp):
+    """Read initial numbers of infected individuals by health board and age.
+
+    :param filename: List of numbers infected in `.csv` format.
+    :type fp: file-like object
+    :return: A dictionary in the format {health_board: {age: infected}}
+    """
     fieldnames = ["Health_Board", "Age", "Infected"]
     header = fp.readline().strip()
     assert header == ",".join(fieldnames), f"bad header: {header}"
@@ -106,8 +142,13 @@ def readInitialInfections(fp):
 
 
 def _check_overlap(one, two):
-    """Check two AgeRange objects to see if they overlap. If they do, raise an
-    Exception
+    """Check two AgeRange objects to see if they overlap.
+    
+    If they do, raise an Exception.
+    :param one:
+    :type one: simple_network_sim.loaders.AgeRange
+    :param two:
+    :type two: simple_network_sim.loaders.AgeRange
     """
     assert one._upper <= two._lower or two._upper <= one._lower, \
             (f"Overlap in age ranges with {one} and {two}")
@@ -118,19 +159,23 @@ AGE_RE = re.compile(r'\[(\d+),\s*(\d+)\)')
 
 
 class AgeRange:
-    """A helper class for an age range."""
+    """A helper class for an age range.
+    
+    If b is None, it is assumed that a is a string to be
+    parsed.
+
+    The string can be one of the two formats:
+    [a,b) - that's an age range from a to b (not including b)
+    a+    - that means any age greater than a, equivalent to [a,MAX_AGE)
+
+    Otherwise, the age range is assumed to be [a, b), where a and b are positive integers.
+    """
 
     # A marker for no upper limit
     MAX_AGE = 200
 
     def __init__(self, a, b=None):
-        """Initialiser. If b is None, it is assumed that a is a string to be
-        parsed. Otherwise, the age range is assumed to be [a, b).
-
-        The string can be one of the two formats:
-        [a,b) - that's an age range from a to b (not including b)
-        a+    - that means any age greater than a, equivalent to [a,MAX_AGE)
-        """
+        """Initialise."""
         if b is None:
             if isinstance(a, tuple) and len(a) == 2:
                 self._lower = a[0]
@@ -154,41 +199,59 @@ class AgeRange:
         assert self._lower >= 0, f"No one is {self._lower} years old"
 
     def __contains__(self, age):
-        """Returns true if age is inside this age range."""
+        """Return true if age is inside this age range."""
         if age < self._lower:
             return False
         return age < self._upper
 
     def __str__(self):
+        """Return a string representation of the current AgeRange instance."""
         if self._upper == AgeRange.MAX_AGE:
             return f"{self._lower}+"
         return f"[{self._lower},{self._upper})"
 
     def __eq__(self, other):
+        """Return true if "other" is the same as the current AgeRange instance."""
         return self._lower == other._lower and self._upper == other._upper
 
     def __neq__(self, other):
+        """Return true if "other" is not the same as the current AgeRange instance."""
         return not self == other
 
     def __hash__(self):
+        """Return a hash of the current AgeRange instance."""
         return hash((self._lower, self._upper))
 
 
 class MixingRow:
-    """A mixing row is one row of a mixing table. This is a helper class. A row
+    """One row of a mixing table.
+    
+    This is a helper class. A row
     represents a given population, and can return the expected number of
     interactions (per day) a member of this population will have with some
     other target.
+    
+    :param ages: Ages
+    :type ages: list
+    :param interactions: Interactions / person / day
+    :type interactions: list
+
+    Both lists must be the same length.
+
+    Upon initialization, the property `self._entries` is set to a dictionary mapping 
+    AgeRange objects to numbers of interactions / person / day.
     """
+
     def __init__(self, ages, interactions):
-        """Initialiser. Entries should be a dict mapping an AgeRange to an
-        expected number of interactions."""
+        """Initialise."""        
         self._entries = {}
         for age, interact in zip(ages, interactions):
             self._entries[age] = float(interact)
 
     def __getitem__(self, age):
-        """Get the expected number of interactions (per day) that someone from
+        """Return expected number of interactions.
+        
+        Return the expected number of interactions (per day) that someone from
         this MixingRow would have with someone with the given age, or age
         range.
         """
@@ -200,11 +263,13 @@ class MixingRow:
         raise Exception(f'Could not find {age} in MixingRow')
 
     def __str__(self):
+        """Return a string representing the current MixingRow instance."""
         return "[" + ", ".join(f"{str(key)}: {str(val)}"
                                for key, val in self._entries.items()) + "]"
 
     def __iter__(self):
-        """
+        """Iterate by row.
+
         Iterator that iterates over the matrix keys (a key points to a row). The values returned by the iterator will
         all be strings, since that's how the public interface when indexing the matrix.
         """
@@ -212,28 +277,31 @@ class MixingRow:
 
 
 class MixingMatrix:
-    """Can give the expected number of interactions per day a given person will
+    """Stores expected numbers of interactions between people of different ages.
+    
+    Stores expected number of interactions per day a given person will
     have with some other person, based on the ages of the two people, or given
-    age-ranges. A MixingMatrix will often be instantiated from a CSV file (see
-    initialiser). It can be used as follows:
+    age-ranges.
+    
+    Examples:    
+    `mm = MixingMatrix("sample_input_file/sample_20200327_comix_social_contacts.sampleCSV")`
+    `print(mm[28][57])` Prints the expected number of interactions a 28 year old
+    would have with a 57 year old in a day
+    `print(mm["[30,40)"]["70+"])` or `print(mm[(30,40)]["70+"])` Prints the expected number of interactions someone in the
+    age range [30-40) would have with someone aged 70 or older
+    in any given day.
 
-        mm = MixingMatrix("sample_input_file/sample_20200327_comix_social_contacts.sampleCSV")
-        print(mm[28][57])  # Prints the expected number of interactions a 28 year old
-                           # would have with a 57 year old in a day
-        print(mm["[30,40)"]["70+"])  # Prints the expected number of interactions someone in the
-                                     # age range [30-40) would have with someone aged 70 or older
-                                     # in any given day.
-        print(mm[(30,40)]["70+"])  # As above
-
-    """
-
-    def __init__(self, infile):
-        """Reads an input file. The input file should be a CSV file, with the
+    :param infile: The input file should be a `.csv` file, with the
         first row and column as headers. These contain age ranges in either the
         format "[a, b)", or the format "a+". The entry in the table in row R
         and column C then indicates how many expected interactions per day a
         member of the R column interacts with a member of the C columns.
-        """
+    :type infile: file-like object
+
+    """
+
+    def __init__(self, infile):
+        """Initialise."""
         self._matrix = {}
         with open(infile, "r") as inp:
             reader = csv.reader(inp)
@@ -259,7 +327,9 @@ class MixingMatrix:
                 _check_overlap(one, two)
 
     def __getitem__(self, age):
-        """Gets a MixingRow for the given age, which in turn can give the
+        """Return MixingRow for given age.
+        
+        Gets a MixingRow for the given age, which in turn can give the
         expected number of interactions. Most often, you will probably want to
         just use MixingMatrix[age1][age2] to get the expected number of
         interactions that a person of age1 will have with a person of age2.
@@ -273,6 +343,7 @@ class MixingMatrix:
         raise Exception(f'Could not find {age} in MixingMatrix')
 
     def __str__(self):
+        """Return a string representing the current MixingMatrix instance."""
         return "\n".join(f"{str(key)}: {str(row)}" for key, row in self._matrix.items())
 
     def __iter__(self):
