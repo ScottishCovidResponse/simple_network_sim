@@ -146,7 +146,8 @@ def readInitialInfections(fp: TextIO) -> Dict[str, Dict[str, float]]:
 
 
 def readMovementMultipliers(fp: TextIO) -> Dict[int, float]:
-    """
+    """Read file containing movement multipliers by time.
+
     :param fp: file object containing a CSV with header Time,Movement_Multiplier
     :return: A dict of ints (time) pointing to floats (Movement_Multiplier). The floats can be greater than 1.0 if the
              number of people transitioning between nodes should increase rather than decrease
