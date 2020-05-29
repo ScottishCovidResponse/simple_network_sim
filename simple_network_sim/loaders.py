@@ -66,7 +66,6 @@ def readPopulationAgeStructured(fp: TextIO) -> Dict[str, Dict[str, int]]:
     :type fp: file-like object
     :return: A dictionary in the format {health_board: {age: pop, age: pop, age: pop}}
     """
-
     dictOfPops = {}
 
     fieldnames = ["Health_Board", "Sex", "Age", "Total"]
