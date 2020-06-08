@@ -2,7 +2,7 @@ language: generic
 
 matrix:
   include:
-    - name: 'Conda Python with spec-file'
+    - name: "Conda Python with spec-file"
       install:
         - sudo apt-get update && sudo apt-get install -y wget
         - wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
@@ -14,7 +14,7 @@ matrix:
         - conda create --name simple_network_sim --file spec-file.txt
         - conda activate simple_network_sim
       script:
-        - pytest --cov=simple_network_sim
+        - pytest -v tests --cov=simple_network_sim
       after_success:
         - coverage xml
         - bash <(curl -s https://codecov.io/bash)
