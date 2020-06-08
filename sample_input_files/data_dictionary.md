@@ -13,7 +13,7 @@ Explicit compartment transfer rates rates from the first compartment in the name
 ## compartmentTransitionByAge.csv
 This contains epidemiological rate parameters for movement within the compartmental model split by ages. Each row represents a transition between two compartmens within a specific age.
 
-## sample_hb2019_pop_est_2018.sampleCSV
+## sample_hb2019_pop_est_2018.csv
 **Deprecated**. Use sample_hb2019_pop_est_2018_row_based.csv
 This file contains age-and-sex-stratified population numbers by geographic unit (here Scottish health board areas, but same format is available for other geographic units).  Columns are:
 Health_Board,Sex,Total_across_age,Young,Medium,Old
