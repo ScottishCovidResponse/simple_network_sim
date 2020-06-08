@@ -13,6 +13,8 @@ matrix:
         - conda update -q conda
         - conda create --name simple_network_sim --file spec-file.txt
         - conda activate simple_network_sim
+        - pwd
+        - ls
       script:
         - pytest -v tests --cov=simple_network_sim
       after_success:
