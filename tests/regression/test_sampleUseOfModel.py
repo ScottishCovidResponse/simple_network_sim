@@ -1,15 +1,20 @@
 import os
 import tempfile
+
 from glob import glob
+from pathlib import Path
 
 import pandas as pd
+
 from simple_network_sim import sampleUseOfModel
 from tests.utils import create_baseline
 
 
 def test_run_seeded(initial_infection):
     with tempfile.TemporaryDirectory() as dirname:
-        sampleUseOfModel.main(["seeded", initial_infection, f"{dirname}/test"])
+        sampleUseOfModel.main(
+            ["seeded", str(initial_infection), str(Path(dirname) / "test")]
+        )
 
         files = glob(os.path.join(dirname, "test*"))
         assert len(files) == 2

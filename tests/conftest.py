@@ -1,7 +1,11 @@
 import csv
-import os
+
+from pathlib import Path
 
 import pytest
+
+# Path to directory containing test files for fixtures
+FIXTURE_DIR = Path(__file__).parents[0] / "test_data"
 
 
 @pytest.fixture
@@ -12,12 +16,12 @@ def compartmentTransitionsByAge(compartmentTransitionsByAgeFilename):
 
 @pytest.fixture
 def compartmentTransitionsByAgeFilename():
-    yield os.path.join(os.path.dirname(__file__), "..", "sample_input_files", "compartmentTransitionByAge.csv")
+    yield FIXTURE_DIR / "compartmentTransitionByAge.csv"
 
 
 @pytest.fixture
 def initial_infection():
-    yield os.path.join(os.path.dirname(__file__), "..", "sample_input_files", "initial_infection.csv")
+    yield FIXTURE_DIR / "initial_infection.csv"
 
 
 @pytest.fixture
@@ -28,7 +32,7 @@ def multipliers(multipliers_filename):
 
 @pytest.fixture
 def multipliers_filename():
-    yield os.path.join(os.path.dirname(__file__), "..", "sample_input_files", "movement_multipliers.csv")
+    yield FIXTURE_DIR / "movement_multipliers.csv"
 
 
 @pytest.fixture
@@ -39,29 +43,27 @@ def demographics(demographicsFilename):
 
 @pytest.fixture
 def demographicsFilename():
-    yield os.path.join(os.path.dirname(__file__), "..", "sample_input_files", "sample_hb2019_pop_est_2018_row_based.csv")
+    yield FIXTURE_DIR / "sample_hb2019_pop_est_2018_row_based.csv"
 
 
 @pytest.fixture
 def mixing_matrix():
-    yield os.path.join(os.path.dirname(__file__), "..", "sample_input_files", "sample_20200327_comix_social_contacts.sampleCSV")
+    yield FIXTURE_DIR / "sample_20200327_comix_social_contacts_old.csv"
 
 
 @pytest.fixture
 def simplified_mixing_matrix():
-    yield os.path.join(os.path.dirname(__file__), "..", "sample_input_files", "simplified_age_infection_matrix.csv")
+    yield FIXTURE_DIR / "simplified_age_infection_matrix.csv"
 
 
 @pytest.fixture
 def commute_moves():
-    yield os.path.join(
-        os.path.dirname(__file__), "..", "sample_input_files", "sample_scotHB_commute_moves_wu01.csv"
-    )
+    yield FIXTURE_DIR / "sample_scotHB_commute_moves_wu01.csv"
 
 
 @pytest.fixture
 def locations():
-    yield os.path.join(os.path.dirname(__file__), "..", "sample_input_files", "sampleNodeLocations.json")
+    yield FIXTURE_DIR / "sampleNodeLocations.json"
 
 
 @pytest.fixture
@@ -75,7 +77,9 @@ def age_infection_matrix(compartmentTransitionsByAge):
 
     for row in csv.DictReader(compartmentTransitionsByAge):
         ages.add(row["age"])
-    compartmentTransitionsByAge.seek(0)  # we need to seek back to the beginning since the fixture scope is function
+    compartmentTransitionsByAge.seek(
+        0
+    )  # we need to seek back to the beginning since the fixture scope is function
 
     matrix = {}
     for a in ages:

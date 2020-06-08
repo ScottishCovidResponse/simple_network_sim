@@ -2,7 +2,6 @@ import argparse
 import copy
 import logging
 import logging.config
-import os
 import random
 import sys
 import time
@@ -18,15 +17,20 @@ from . import common, network_of_populations as ss, loaders
 # Default logger, used if module not called as __main__
 logger = logging.getLogger(__name__)
 
+
 def main(argv):
     t0 = time.time()
 
+    print(argv)
     args = build_args(argv)
 
     # Set up log config
     setup_logger(args)
 
-    logger.info("Parameters\n%s", "\n".join(f"\t{key}={value}" for key, value in args._get_kwargs()))
+    logger.info(
+        "Parameters\n%s",
+        "\n".join(f"\t{key}={value}" for key, value in args._get_kwargs()),
+    )
 
     network = ss.createNetworkOfPopulation(
         disasesProgressionFn=args.compartment_transition,
@@ -47,7 +51,9 @@ def main(argv):
         if args.cmd == "random":
             # If random, pick new infections at each iteration
             infections = {}
-            for regionID in random.choices(list(disposableNetwork.graph.nodes()), k=args.regions):
+            for regionID in random.choices(
+                list(disposableNetwork.graph.nodes()), k=args.regions
+            ):
                 infections[regionID] = {}
                 for age in args.age_groups:
                     infections[regionID][age] = args.infected
@@ -56,7 +62,9 @@ def main(argv):
 
         ss.basicSimulationInternalAgeStructure(disposableNetwork, args.time)
         # index by all columns so it's we can safely aggregate
-        indexed = ss.modelStatesToPandas(disposableNetwork.states).set_index(["time", "healthboard", "age", "state"])
+        indexed = ss.modelStatesToPandas(disposableNetwork.states).set_index(
+            ["time", "healthboard", "age", "state"]
+        )
         if aggregated is None:
             aggregated = indexed
         else:
@@ -68,7 +76,9 @@ def main(argv):
     filename = f"{args.output_prefix}-{int(time.time())}"
 
     averaged.to_csv(f"{filename}.csv", index=False)
-    ss.plotStates(averaged, states=args.plot_states, healthboards=args.plot_healthboards).savefig(f"{filename}.pdf", dpi=300)
+    ss.plotStates(
+        averaged, states=args.plot_states, healthboards=args.plot_healthboards
+    ).savefig(f"{filename}.pdf", dpi=300)
 
     logger.info("Read the dataframe from: %s.csv", filename)
     logger.info("Open the visualisation from: %s.pdf", filename)
@@ -97,23 +107,18 @@ def setup_logger(args: Optional[argparse.Namespace] = None) -> None:
         "formatters": {
             "standard": {
                 "format": "[%(asctime)s] [%(name)s] [%(levelname)s] %(message)s",
-                },
             },
+        },
         "handlers": {
             "stderr": {
                 "level": "WARNING",
                 "class": "logging.StreamHandler",
                 "formatter": "standard",
-                "stream": "ext://sys.stderr"
-                },
+                "stream": "ext://sys.stderr",
             },
-        "loggers": {
-            __package__: {
-                "handlers": ["stderr"],
-                "level": "DEBUG",
-                },
-            },
-        }
+        },
+        "loggers": {__package__: {"handlers": ["stderr"], "level": "DEBUG",},},
+    }
 
     # If args.logpath is specified, add logfile
     if args is not None and args.logfile is not None:
@@ -133,7 +138,7 @@ def setup_logger(args: Optional[argparse.Namespace] = None) -> None:
             "formatter": "standard",
             "filename": str(args.logfile),
             "encoding": "utf8",
-            }
+        }
         logconf["loggers"][__package__]["handlers"].append("logfile")
 
     # Set STDERR/logfile levels if args.verbose/args.debug specified
@@ -149,7 +154,7 @@ def setup_logger(args: Optional[argparse.Namespace] = None) -> None:
 
 def build_args(argv):
     """Return parsed CLI arguments as argparse.Namespace."""
-    sampledir = os.path.realpath(os.path.join(os.path.dirname(__file__), "..", "sample_input_files"))
+    sampledir = Path(__file__).parents[1] / "sample_input_files"
 
     parser = argparse.ArgumentParser(
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
@@ -157,22 +162,25 @@ def build_args(argv):
     )
     parser.add_argument(
         "--compartment-transition",
-        default=os.path.join(sampledir, "compartmentTransitionByAge.csv"),
+        default=sampledir / "compartmentTransitionByAge.csv",
         help="Epidemiological rate parameters for movement within the compartmental model.",
     )
     parser.add_argument(
         "--population",
-        default=os.path.join(sampledir, "sample_hb2019_pop_est_2018_row_based.csv"),
+        default=sampledir / "sample_hb2019_pop_est_2018_row_based.csv",
+        type=Path,
         help="This file contains age-and-sex-stratified population numbers by geographic unit.",
     )
     parser.add_argument(
         "--commutes",
-        default=os.path.join(sampledir, "sample_scotHB_commute_moves_wu01.csv"),
+        default=sampledir / "sample_scotHB_commute_moves_wu01.csv",
+        type=Path,
         help="This contains origin-destination flow data during peacetime for health boards",
     )
     parser.add_argument(
         "--mixing-matrix",
-        default=os.path.join(sampledir, "simplified_age_infection_matrix.csv"),
+        default=sampledir / "simplified_age_infection_matrix.csv",
+        type=Path,
         help="This is a sample square matrix of mixing - each column and row header is an age category.",
     )
     parser.add_argument(
@@ -183,7 +191,7 @@ def build_args(argv):
         "--time",
         default=200,
         type=int,
-        help="The number of time steps to take for each simulation"
+        help="The number of time steps to take for each simulation",
     )
     parser.add_argument(
         "-l",
@@ -191,48 +199,75 @@ def build_args(argv):
         dest="logfile",
         default=None,
         type=Path,
-        help="Path for logging output"
+        help="Path for logging output",
     )
     parser.add_argument(
         "-v",
         "--verbose",
         dest="verbose",
         action="store_true",
-        help="Provide verbose output to STDERR"
+        help="Provide verbose output to STDERR",
     )
     parser.add_argument(
-        "--debug",
-        action="store_true",
-        help="Provide debug output to STDERR"
+        "--debug", action="store_true", help="Provide debug output to STDERR"
     )
     parser.add_argument(
         "--plot-healthboards",
         default=None,
         nargs="+",
-        help="If set, will only plot the specified healthboards"
+        help="If set, will only plot the specified healthboards",
     )
     parser.add_argument(
         "--plot-states",
         default=None,
         nargs="+",
-        help="If set, will only plot the specified states"
+        help="If set, will only plot the specified states",
     )
 
     sp = parser.add_subparsers(dest="cmd", required=True)
 
     # Parameters when using the random infection approach
-    randomCmd = sp.add_parser("random", help="Randomly pick regions to infect", formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    randomCmd = sp.add_parser(
+        "random",
+        help="Randomly pick regions to infect",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+    )
     randomCmd.add_argument("--regions", default=1, help="Number of regions to infect")
-    randomCmd.add_argument("--age-groups", nargs="+", default=["[17,70)"], help="Age groups to infect")
-    randomCmd.add_argument("--trials", default=100, type=int, help="Number of experiments to run")
-    randomCmd.add_argument("--infected", default=100, type=int, help="Number of infected people in each region/age group")
-    randomCmd.add_argument("output_prefix", help="Prefix used when exporting the dataframe and plot")
+    randomCmd.add_argument(
+        "--age-groups", nargs="+", default=["[17,70)"], help="Age groups to infect"
+    )
+    randomCmd.add_argument(
+        "--trials", default=100, type=int, help="Number of experiments to run"
+    )
+    randomCmd.add_argument(
+        "--infected",
+        default=100,
+        type=int,
+        help="Number of infected people in each region/age group",
+    )
+    randomCmd.add_argument(
+        "output_prefix",
+        type=str,
+        help="Prefix used when exporting the dataframe and plot",
+    )
 
     # Parameters when using the seeded infection approach
-    seededCmd = sp.add_parser("seeded", help="Use a seed file with infected regions", formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    seededCmd.add_argument("--trials", default=1, type=int, help="Number of experiments to run")
-    seededCmd.add_argument("input", help="File name with the seed region seeds")
-    seededCmd.add_argument("output_prefix", help="Prefix use when exporting the dataframe and plot")
+    seededCmd = sp.add_parser(
+        "seeded",
+        help="Use a seed file with infected regions",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+    )
+    seededCmd.add_argument(
+        "--trials", default=1, type=int, help="Number of experiments to run"
+    )
+    seededCmd.add_argument(
+        "input", type=Path, help="File name with the seed region seeds"
+    )
+    seededCmd.add_argument(
+        "output_prefix",
+        type=str,
+        help="Prefix use when exporting the dataframe and plot",
+    )
 
     return parser.parse_args(argv)
 
