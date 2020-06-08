@@ -21,7 +21,6 @@ logger = logging.getLogger(__name__)
 def main(argv):
     t0 = time.time()
 
-    print(argv)
     args = build_args(argv)
 
     # Set up log config
