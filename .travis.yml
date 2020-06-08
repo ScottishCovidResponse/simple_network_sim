@@ -15,8 +15,9 @@ matrix:
         - conda activate simple_network_sim
         - pwd
         - ls
+        - ls tests/test_data
       script:
-        - pytest -v tests --cov=simple_network_sim
+        - pytest --cov=simple_network_sim
       after_success:
         - coverage xml
         - bash <(curl -s https://codecov.io/bash)
