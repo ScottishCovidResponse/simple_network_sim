@@ -23,7 +23,7 @@ Our preferred coding style is [PEP8](https://www.python.org/dev/peps/pep-0008/),
 
 ## Docstrings
 
-It is preferred that docstrings are in [sphinx format](https://sphinx-rtd-tutorial.readthedocs.io/en/latest/docstrings.html).
+It is preferred that docstrings are in [sphinx format](https://sphinx-rtd-tutorial.readthedocs.io/en/latest/docstrings.html). [pydocstyle](https://pypi.org/project/pydocstyle/) may be a helpful tool for checking that documentation coverage is complete.
 
 ## Licensing
 

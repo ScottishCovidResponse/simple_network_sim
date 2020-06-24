@@ -114,7 +114,7 @@ python -m simple_network_sim.sampleUseOfModel seeded sample_input_files/initial_
 Use the help command to see a description of all the parameters
 
 ```{shell}
-pyhon -m simple_network_sim.sampleUseOfModel -h
+python -m simple_network_sim.sampleUseOfModel -h
 usage: sampleUseOfModel.py [-h]
                            [--compartment-transition COMPARTMENT_TRANSITION]
                            [--population POPULATION] [--commutes COMMUTES]
@@ -183,8 +183,24 @@ optional arguments:
   --infected INFECTED   Number of infected people in each region/age group
                         (default: 100)
 ```
- 
+
 Descriptions of the data files used can be found in the [data dictionary](sample_input_files/README.md).
+
+## Building the documentation
+
+To build a local version of the readthedocs site e.g. when working on the documentation.
+
+Add the following packages to your environment:
+
+- `sphinx`
+- `sphinx_rtd_theme`
+
+Then:
+
+```{shell}
+cd doc
+sphinx-build -b html -d build/doctrees source build/html
+```
 
 ## Continuous integration
 
