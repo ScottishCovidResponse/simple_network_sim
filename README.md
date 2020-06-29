@@ -188,9 +188,7 @@ Descriptions of the data files used can be found in the [data dictionary](sample
 
 ## Building the documentation
 
-To build a local version of the readthedocs site e.g. when working on the documentation.
-
-Add the following packages to your environment:
+To build a local version of the readthedocs site (e.g. when working on the documentation) add the following packages to your environment:
 
 - `sphinx`
 - `sphinx_rtd_theme`
