@@ -236,7 +236,11 @@ sphinx-build -b html -d build/doctrees source build/html
 
 ## Continuous integration
 
-[Continuous integration uses Travis and Codecov](ci.md).
+[Continuous integration uses Travis, codacy and Codecov](ci.md).
+
+## Static analysis
+
+[Automated static analysis results](https://app.codacy.com/gh/ScottishCovidResponse/simple_network_sim/issues/index) are available - these should be interpreted with caution and the importance of each issue must be assessed individually. We do not make use of the overall "quality standards" features of codacy at this time as they are pretty arbitrary.
 
 ## License
 
