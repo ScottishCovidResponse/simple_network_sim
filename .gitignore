@@ -24,6 +24,10 @@ access*yaml
 !sample_output_files/*
 !tests/test_data/data_pipeline_inputs/human/**
 
+# Specifically include .csv files in extractors directory to avoid accidental
+# rehosting of other .csv files
+!extractors\movement\iso-3166-2_to_scottishLA.csv
+
 # IDE
 .idea
 *.sw[po]
