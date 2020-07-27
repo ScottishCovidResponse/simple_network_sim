@@ -1,0 +1,15 @@
+[overall]
+type = "point-estimate"
+value = 0.00
+
+['[0,17)']
+type = "point-estimate"
+value = 0.0004
+
+['[17,70)']
+type = "point-estimate"
+value = 0.05
+
+['70+']
+type = "point-estimate"
+value = 0.18
