@@ -1,0 +1,41 @@
+data_directory: .
+run_id: data_processing
+fail_on_hash_mismatch: False
+read:
+  - where:
+      data_product: human/infection/SARS-CoV-2/death-before-hospitalised
+    use:
+      filename: human/infection/SARS-CoV-2/death-before-hospitalised/0.1.0/0.1.0.toml
+  - where:
+      data_product: human/infection/SARS-CoV-2/latent-period
+    use:
+      filename: human/infection/SARS-CoV-2/latent-period/0.1.0/0.1.0.toml
+  - where:
+      data_product: human/infection/SARS-CoV-2/symptom-probability
+    use:
+      filename: human/infection/SARS-CoV-2/symptom-probability/0.1.0/0.1.0.toml
+  - where:
+      data_product: human/infection/SARS-CoV-2/asymptomatic-period
+    use:
+      filename: human/infection/SARS-CoV-2/asymptomatic-period/0.1.0/0.1.0.toml
+  - where:
+      data_product: human/infection/SARS-CoV-2/infectious-duration
+    use:
+      filename: human/infection/SARS-CoV-2/infectious-duration/0.1.0/0.1.0.toml
+  - where:
+      data_product: human/infection/SARS-CoV-2/hospitalisation-from-symptoms
+    use:
+      filename: human/infection/SARS-CoV-2/hospitalisation-from-symptoms/0.1.0/0.1.0.toml
+  - where:
+      data_product: human/infection/SARS-CoV-2/hospital-stay
+    use:
+      filename: human/infection/SARS-CoV-2/hospital-stay/0.1.0/0.1.0.toml
+  - where:
+      data_product: human/infection/SARS-CoV-2/death-in-hospital
+    use:
+      filename: human/infection/SARS-CoV-2/death-in-hospital/0.1.0/0.1.0.toml
+write:  
+  - where:
+      data_product: generated_sns_products/compartment_transition_rates
+    use:
+      filename: generated_sns_products/compartment_transition_rates/compartment_transition_rates.h5

@@ -1,0 +1,14 @@
+- accessibility: 0
+  component: latent-period
+  data_product: human/infection/SARS-CoV-2/latent-period
+  extension: toml
+  filename: human/infection/SARS-CoV-2/latent-period/0.1.0/0.1.0.toml
+  namespace: SCRC
+  verified_hash: 7c0e14caec08674d7d4e52c305cb4320babaf90f
+  version: 0.1.0
+- doi_or_unique_name: external_object.csv
+  filename: human/external_object.csv
+- doi_or_unique_name: 00462936.csv
+  filename: human/external/00462936.csv
+- doi_or_unique_name: wu03buk_oa_wz_v4.csv
+  filename: human/external/wu03buk_oa_wz_v4.csv
