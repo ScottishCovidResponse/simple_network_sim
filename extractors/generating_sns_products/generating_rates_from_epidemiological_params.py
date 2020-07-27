@@ -74,10 +74,10 @@ with DataProcessingAPI(config_filename, uri=uri, git_sha=git_sha) as api:
     for age in ages:
 
         prob_community_death = api.read_estimate(
-            "human/infection/SARS-CoV-2/death-before-hospitalised", "[0,17)"
+            "human/infection/SARS-CoV-2/death-before-hospitalised", age
         )
         prob_hospital = api.read_estimate(
-            "human/infection/SARS-CoV-2/hospitalisation-from-symptoms", "[0,17)"
+            "human/infection/SARS-CoV-2/hospitalisation-from-symptoms", age
         )
 
         transitions[age][("I", "I")] = 1.0 - rate_leave_i
