@@ -34,6 +34,10 @@ read:
       data_product: human/infection/SARS-CoV-2/death-in-hospital
     use:
       filename: human/infection/SARS-CoV-2/death-in-hospital/0.1.0/0.1.0.toml
+  - where:
+      data_product: human/infection/SARS-CoV-2/infectious-period-asymptomatics
+    use:
+      filename: human/infection/SARS-CoV-2/infectious-period-asymptomatics/0.1.0/0.1.0.toml
 write:  
   - where:
       data_product: generated_sns_products/compartment_transition_rates

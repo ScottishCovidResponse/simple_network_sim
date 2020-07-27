@@ -50,10 +50,14 @@ with DataProcessingAPI(config_filename, uri=uri, git_sha=git_sha) as api:
 
     ###########################
     # A_2 A_2 ,R
-    asympomatic_infectious_period = 1 / 0.875
+
+    asympomatic_infectious_period = api.read_estimate(
+        "human/infection/SARS-CoV-2/infectious-period-asymptomatics", "infectious-period-asymptomatics"
+    )
+    rate_leave_a2 = 1 / (asympomatic_infectious_period / 24)
     for age in ages:
-        transitions[age][("A_2", "A_2")] = 1.0 / asympomatic_infectious_period
-        transitions[age][("A_2", "R")] = 1.0 - 1.0 / asympomatic_infectious_period
+        transitions[age][("A_2", "A_2")] = 1.0 - rate_leave_a2
+        transitions[age][("A_2", "R")] = rate_leave_a2
 
     ###########################
     # A A, I
