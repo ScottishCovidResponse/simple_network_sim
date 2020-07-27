@@ -1,3 +1,29 @@
+"""
+This script will create a compartmental transition rates file as required by simple_network_sim
+from a number of direct epidemiological parameters, some age-stratified by the ages "[0,17)", "[17,70)", "70+"
+- asymptomatic-period: expected length of pre-symptomatic period for an individual who will eventually devleop symptoms
+- death-before-hospitalised: age-structured probability of death from symptomatic state, without being hospitalised
+- death-in-hospital: age-structured probability of death given hospitalisation
+- hospital-stay: expected length of a hospital stay in hours
+- hospitalisation-from-symptoms: age-structured probability that an individual with symptoms will require hospitalisation
+- infectious-duration: expected period in which an individual with symptoms is infectious after symptoms appear, in hours
+- infectious-period-asymptomatics: expected time period during which true asymptomatics are infectious in hours
+- latent-period: expected latent period in hours
+- symptom-probability: age-structured probability of an exposed individual eventually developing symptoms (as opposed to being truly asymptomatic)
+movement-to-work aggregated files at the Scottish Datazone and Intermediate Zone levels, using:
+These are assumed to be accessible via the data_pipeline_api.data_processing_api, as described in the file data_processing_config.yaml
+Python requirements:
+- pathlib
+- pandas
+- data_pipeline_api
+How to run this module:
+```
+This script can be run with
+```
+python generating_rates_from_epidemiological_params.py
+```
+The script generates a .h5 file of compartment transition rates, in the location specified in  data_processing_config.yaml
+"""
 from pathlib import Path
 import pandas as pd
 from data_pipeline_api.data_processing_api import DataProcessingAPI
@@ -52,7 +78,8 @@ with DataProcessingAPI(config_filename, uri=uri, git_sha=git_sha) as api:
     # A_2 A_2 ,R
 
     asympomatic_infectious_period = api.read_estimate(
-        "human/infection/SARS-CoV-2/infectious-period-asymptomatics", "infectious-period-asymptomatics"
+        "human/infection/SARS-CoV-2/infectious-period-asymptomatics",
+        "infectious-period-asymptomatics",
     )
     rate_leave_a2 = 1 / (asympomatic_infectious_period / 24)
     for age in ages:
