@@ -1,3 +1,30 @@
+"""
+This script will create movement-to-work aggregated files at the Scottish Datazone and Intermediate Zone levels, using:
+- A lookup table from output area to datazone and intermediate zone in Scotland https://www2.gov.scot/Resource/0046/00462936.csv
+- A table of origin-destination movement to work at the output area level - file wu03buk_oa_wz_v4.csv
+   available from  http://wicid.ukdataservice.ac.uk/ to academics and local
+   government after making an account and agreeing to a EULA for access to safeguarded data
+Python requirements:
+- pathlib
+- pandas
+- data_pipeline_api
+How to run this module:
+This script uses the data_pipeline_api.data_processing_api, and therefore makes use of both
+- data_processing_config.yaml, and
+- metadata.yaml
+metadata.yaml should include something like:
+```
+- doi_or_unique_name: 00462936.csv
+  filename: human/external/00462936.csv
+- doi_or_unique_name: wu03buk_oa_wz_v4.csv
+  filename: human/external/wu03buk_oa_wz_v4.csv
+```
+This script can be run with
+```
+python aggregating_flows_from_commute_data.py
+```
+The script generates .h5 files in generated_sns_products/wu03buk_oa_wz_v4_scottish_interzones and generated_sns_products/wu03buk_oa_wz_v4_scottish_datazones
+"""
 from pathlib import Path
 import pandas as pd
 from data_pipeline_api.data_processing_api import DataProcessingAPI
