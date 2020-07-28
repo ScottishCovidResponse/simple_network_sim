@@ -17,6 +17,14 @@ pip install git+https://github.com/ScottishCovidResponse/data_pipeline_api@a2a53
 I need to add this to the config block in access*yaml:
 
 ```
-model_version: unversioned
+model_version: 0.0.1
 model_name: simple_network_sim
 ```
+
+and 
+
+```
+    namespace: simple_network_sim_test
+```
+
+to the `access_metadata:` in the `write` block.
