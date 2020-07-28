@@ -1,6 +1,6 @@
-token=$1
-username=$2
-password=$3
+token=$1 #Data registry token
+username=$2 #FTP username
+password=$3 #FTP password
 remoteuri='ssh://boydorr.gla.ac.uk/srv/ftp/scrc/'
 remoteurioverride='ftp://boydorr.gla.ac.uk/scrc/'
 namespace='simple_network_sim_test'
