@@ -1,0 +1,65 @@
+data_directory: test_download
+access_log: access-{run_id}.yaml
+fail_on_hash_mismatch: True
+namespace: simple_network_sim_test
+
+read:
+ - where:
+     data_product: human/commutes
+   use:
+     version: 0.1.0
+ - where:
+     data_product: human/compartment-transition
+   use:
+     data_product: human/compartment-transition/1
+     version: 0.1.0
+ - where:
+     data_product: human/full-mixing-matrix
+   use:
+     version: 0.1.0
+ - where:
+     data_product: human/infection-probability
+   use:
+     version: 0.1.0
+ - where:
+     data_product: human/infectious-compartments
+   use:
+     data_product: human/infectious-compartments/1
+     version: 0.1.0
+ - where:
+     data_product: human/initial-infections
+   use:
+     version: 0.1.0
+ - where:
+     data_product: human/locations
+   use:
+     version: 0.1.0
+ - where:
+     data_product: human/mixing-matrix
+   use:
+     version: 0.1.0
+ - where:
+     data_product: human/movement-multipliers
+   use:
+     version: 0.1.0
+ - where:
+     data_product: human/population
+   use:
+     version: 0.1.0
+ - where:
+     data_product: human/random-seed
+   use:
+     version: 0.1.0
+ - where:
+     data_product: human/start-end-date
+   use:
+     version: 0.1.0
+ - where:
+     data_product: human/stochastic-mode
+   use:
+     version: 0.1.0
+ - where:
+     data_product: human/trials
+   use:
+     version: 0.1.0
+
