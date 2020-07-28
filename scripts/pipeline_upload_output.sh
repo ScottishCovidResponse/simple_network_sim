@@ -1,2 +1,2 @@
 cd ..
-python -m data_pipeline_api.registry.access_upload --config test_config.yaml --model-config access-33010cea9fe2eea4bba0a518dfe7a4ae54371e93.yaml --remote-uri ssh://boydorr.gla.ac.uk/srv/ftp/scrc/ --submission-script scripts/submission.sh --token $1
+python -m data_pipeline_api.registry.access_upload --config test_pipeline/test_config.yaml --model-config $2 --remote-uri ssh://boydorr.gla.ac.uk/srv/ftp/scrc/ --submission-script scripts/pipeline_submission.sh --token $1
