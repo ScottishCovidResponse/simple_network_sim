@@ -24,7 +24,7 @@ Each node in an edge-weighted network contains an age-structured population and 
 
 After seeding disease at specified nodes, sns simulates progression of an outbreak due to both within- and between-node infectious contacts.  Infection and disease progression can be run either deterministically (resulting in fractional people in each disease state) or stochastically.  The end result of the model is a timeseries of the number of people in each node, compartment and age.
 
-\section{Inputs}
+\section{Inputs and Notation}
 
 Data, parameters, and the compartmental model to be used are all passed to sns as inputs and accessed via the SCRC Data Pipeline API.  
 
@@ -52,19 +52,37 @@ Data, parameters, and the compartmental model to be used are all passed to sns a
 \end{itemize}
 \end{itemize}
 
+\subsection{Notation}
+Related both to the inputs and the internal state of the model at each timestep, we define some notation for convenience.  
+
+\begin{itemize}
+\item $w(u, v)$ is the number of expected contacts from node $u$ to node $v$, supplied as the weighted edges input file
+\item $x_t$ is the (optional) movement modifier at time $t$, supplied as part of an input file
+\item $y_t$ is the (optional) contact modifier at time $t$, supplied as part of an input file
+\item $A_{u,k}$ is age class $k$ at node $u$ (Where it is clear that we are talking about individuals in all nodes we may abuse notation and use $A_k$)
+\item $X_t(A_{u,k})$ where $X$ is a compartment in the compartmental model is the number of individuals in compartment $X$ in age class $A_k$ in node $u$ at time $t$
+\item $N_t(A_{u,k})$ is the total number of individuals in age class $A_k$ in node $u$ at time $t$
+\item For convenience, we also define $\mathcal{I}_t(A_{u,k})$ as the number of individuals in \emph{any} infectious compartment in age class $A_k$ in node $u$ at time $t$
+\item Similarly for convenience, we define as $p_{t, \mathcal{I}}(A_{u,k}) = \frac{\mathcal{I}_t(A_{u,k})}{N(A_{u,k})}$ the proportion of age class $A_k$ in node $u$ at time $t$ that is infectious, and as $p_{t, S}(A_{u,k}) = \frac{S_t(A_{u,k})}{N(A_{u,k})}$ the proportion of age class $A_k$ in node $u$ at time $t$ that is susceptible.
+\item $C$ is a matrix describing contact between age classes, where $C_{i,j}$ is the expected number of contacts that an individual in age class $A_i$ has with an individual in age class $A_j$.
+\end{itemize}
+
+
 \section{Algorithm of simulation}
 
 Simple network sim uses a notionally daily timestep, and forward-simulates by performing local and between-region infection followed by disease progression updating based on rates supplied as part of the compartmental model.  The simulation can run deterministically using point estimates of rates and infection, or stochastically by drawing individuals to infect or progress from the population.  
 
 \subsection{Central infection mechanism: infectious contacts }
 
-The central mechanism of infection uses the notion of a number of infectious contacts that are distributed amongst the population in a node, structured by age class.  A single infectious contact allocated to a node is a contact that is between a person in an infectious class either within the node or from another node and a person who is susceptible within the node.  In addition to age-structured within-node infection, we take the total number of all of the infectious contacts exerted from other nodes, and then using that total number distribute the infectious contacts to a number of target individuals within the node using either a fixed combinatorial expression or a hypergeometric distribution to draw (with replacement) the number of susceptible people who are subject to those infectious contacts, subject to a specified probability of transmission given a single infectious contact.  This takes account of the possibility of a single susceptible individual in a node being the recipient of multiple infectious contacts.  
+The central mechanism of infection uses the notion of a number of infectious contacts that are distributed amongst the population in a node, structured by age class.  A single infectious contact allocated to a node is a contact that is between a person in an infectious class either within the node or from another node and a person who is susceptible within the node.  In addition to age-structured within-node infection, we take the total number of all of the infectious contacts exerted from other nodes, and then using that total number distribute the infectious contacts to a number of target individuals within the node using either a fixed combinatorial expression or a hypergeometric distribution to draw (with replacement) the number of susceptible people who are subject to those infectious contacts, subject to a specified probability of transmission given a single infectious contact.  This takes account of the possibility of a single susceptible individual in a node being the recipient of multiple infectious contacts.   All infectious classes are considered to have the same infectivity.  
 
 \subsubsection{Calculating the number of within-node infectious contacts}
 
-The number of infectious contacts targeting susceptible individuals in age class $A_i$ is a function of the proportion of infectious individuals in each age class within the node and the expected number of contacts between an individual in $A_i$ and individuals in each of the source age classes. For a single source age class $A_j$ where $C_{i,j}$ is the number of contacts that an individual in $A_i$ expects to have with individuals in $A_j$, and $N(A_k)$, $S(A_k)$, $I(A_k)$ are the number of all, susceptible, and infectious-class (respectively) individuals in age class $A_k$ at the previous time, then the number of within-node infectious contacts from $A_j$ to $A_i$ in the deterministic model is: 
+Within node, the number of infectious contacts targeting susceptible individuals in age class $A_i$ at time $t$ is a function of the proportion of infectious individuals in each age class  within the node and the expected number of contacts between an individual in $A_i$ and individuals in each of the source age classes at time $t-1$. 
+
+Within node $u$, for a single source age class $A_j$ where $C_{i,j}$ is the number of contacts that an individual in $A_i$ expects to have with individuals in $A_j$, $y_{t-1}$ is the time-varying contact modifier (defaulting to 1.0 if none is supplied), then the number of within-node infectious contacts from $A_j$ to $A_i$ in the deterministic model is: 
 $$
-C_{i,j}\frac{I(A_j)}{N(A_j)}\frac{S(A_i)}{N(A_i)}
+y_{t-1}~C_{i,j}~p_{t-1, \mathcal{I}}(A_{u,j})~ p_{t-1, S}(A_{u,i}) 
 $$
 
 \subsubsection{Calculating the number of between-node infectious contacts}
@@ -72,32 +90,18 @@ $$
 For between-node infectious contact calculations, we use an input file of expected directional contacts, an optional time-varying movement modifier, and the disease state at the previous time of the nodes involved.  For a particular pair of nodes $u, v$ at time $t$, let $w(u, v)$ be the number of expected directional contacts, $x_t$ the appropriate time's movement modifier, $p_{v,\mathcal{I}}$ the proportion of individuals in $u$ in an infectious class, the expected number of infectious contacts from $u$ targetting $v$ is $x_t(p_{v,\mathcal{I}}w(u, v))$.  We sum over all nodes that have directed contact toward $v$, and then distribute those infectious contacts amongst the population within $v$.
 
 \subsection{Disease progression}
-Progression through disease states from exposed onward as well as the compartmental model in use is specified by an input file of compartmental transition rates.   As of the first writing of this document (28th July, 2020) we have encoded two compartmental models (as in Figure \ref{fig:compartments}) for use with simple network sim: both are essentially SEIR models, but with additional compartments for severely ill (assumed hospitalised) and asymptomatic infectious individuals.  
+Progression through disease states from exposed onward as well as the compartmental model in use is specified by an input file of compartmental transition rates.   As of the first writing of this document (28th July, 2020) we have encoded two compartmental models (as in Figure \ref{fig:compartments}) for use with simple network sim: both are essentially SEIR models, but with additional compartments for severely ill (assumed hospitalised) and asymptomatic infectious individuals.  In a deterministic run of the model, at each time step the (fractional) number of people flowing from a state $s_i$ to a state $s_j$ given a rate of $r_{i,j}$ is simply calculated as $|s_i|r_{i,j}$, where $|s_i|$ is the number of people in $s_i$.  In a stochastic run, the integer number of people flowing from $s_i$ to $s_j$ given rate $r_{i,j}$ is a sample from a multinomial distribution with parameters $|s_i|$, $r_{i,j}$.
 
-\begin{figure}
+\begin{figure}[h!]
 \scalebox{1.0}{\includegraphics{Nothing here yet}}
-\caption{This will be the two first compartmental models in simple network sim}
+\caption{Two compartmental models currently available as input files to simple network sim.  In both, $S$ are susceptible individuals, $E$ are exposed individuals who are not yet infectious, $I$ are infectious individuals with symptoms,  $H$ are hospitalised individuals, $R$ are recovered individuals, $D$ are dead individuals. In model (L), $A$  are asymptomatic individuals who may or may not ever develop symptoms, whereas in model (R), $A$ are asymptomatic individuals who will eventually develop symptoms and \textbf{$A_2$} are \emph{truly asymptomatic} individuals who will never develop symptoms}
 \end{figure}
 
 
-
-\section{Notation}
-Todo: add text about notation
-
-\begin{itemize}
-\item $w(u, v)$ is the number of expected contacts from node $u$ to node $v$, supplied as part of an input file
-\item $x_t$ is the (optional) movement modifier at time $t$, supplied as part of an input file
-\item $y_t$ is the (optional) contact modifier at time $t$, supplied as part of an input file
-\item $A_{u,k}$ is age class $k$ at node $u$ (Where it is clear that we are talking about individuals in all nodes we may abuse notation and use $A_k$)
-\item $X_t(A_{u,k})$ where $X$ is a compartment in the compartmental model is the number of individuals in compartment $X$ in age class $A_k$ in node $u$ at time $t$
-\item For convenience, we also define $\mathcal{I}_t(A_{u,k})$ as the number of individuals in \emph{any} infectious compartment in age class $A_k$ in node $u$ at time $t$
-\item $C$ is a matrix describing contact between age classes, where $C_{i,j}$ is the expected number of contacts that an individual in age class $A_i$ has with an individual in age class $A_j$.
-\end{itemize}
-
-
 \subsection{Infection Seeding}
+Infection seeding is currently from an input file which specifies the number of individuals in compartment $E$ in some set of specified nodes.  
 
-\subsection{Disease progression}
+\section{ABC-SMC Inference}
 
 
 \end{document}  
