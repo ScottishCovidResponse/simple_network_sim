@@ -5,61 +5,87 @@ namespace: simple_network_sim_test
 
 read:
  - where:
-     data_product: human/commutes
-   use:
-     version: 0.1.0
- - where:
      data_product: human/compartment-transition
+     component: compartment-transition
    use:
      data_product: human/compartment-transition/1
-     version: 0.1.0
- - where:
-     data_product: human/full-mixing-matrix
-   use:
-     version: 0.1.0
- - where:
-     data_product: human/infection-probability
-   use:
-     version: 0.1.0
- - where:
-     data_product: human/infectious-compartments
-   use:
-     data_product: human/infectious-compartments/1
-     version: 0.1.0
- - where:
-     data_product: human/initial-infections
-   use:
-     version: 0.1.0
- - where:
-     data_product: human/locations
-   use:
-     version: 0.1.0
- - where:
-     data_product: human/mixing-matrix
-   use:
-     version: 0.1.0
- - where:
-     data_product: human/movement-multipliers
-   use:
+     component: human/compartment-transition/1
      version: 0.1.0
  - where:
      data_product: human/population
+     component: population
    use:
+     data_product: human/population
+     component: human/population
      version: 0.1.0
  - where:
-     data_product: human/random-seed
+     data_product: human/commutes
+     component: commutes
    use:
+     data_product: human/commutes
+     component: human/commutes
      version: 0.1.0
  - where:
-     data_product: human/start-end-date
+     data_product: human/mixing-matrix
+     component: mixing-matrix
    use:
+     data_product: human/mixing-matrix
+     component: human/mixing-matrix
      version: 0.1.0
  - where:
-     data_product: human/stochastic-mode
+     data_product: human/infectious-compartments
+     component: infectious-compartments
    use:
+     data_product: human/infectious-compartments/1
+     component: human/infectious-compartments/1
+     version: 0.1.0
+ - where:
+     data_product: human/infection-probability
+     component: infection-probability
+   use:
+     data_product: human/infection-probability
+     component: human/infection-probability
+     version: 0.1.0
+ - where:
+     data_product: human/initial-infections
+     component: initial-infections
+   use:
+     data_product: human/initial-infections
+     component: human/initial-infections
      version: 0.1.0
  - where:
      data_product: human/trials
+     component: trials
    use:
+     data_product: human/trials
+     component: human/trials
+     version: 0.1.0
+ - where:
+     data_product: human/start-end-date
+     component: start-end-date
+   use:
+     data_product: human/start-end-date
+     component: human/start-end-date
+     version: 0.1.0
+ - where:
+     data_product: human/movement-multipliers
+     component: movement-multipliers
+   use:
+     data_product: human/movement-multipliers
+     component: human/movement-multipliers
+     version: 0.1.0
+ - where:
+     data_product: human/stochastic-mode
+     component: stochastic-mode
+   use:
+     data_product: human/stochastic-mode
+     component: human/stochastic-mode
+     version: 0.1.0
+ - where:
+     data_product: human/random-seed
+     component: random-seed
+   use:
+     data_product: human/random-seed
+     component: human/random-seed
      version: 0.1.0
 
