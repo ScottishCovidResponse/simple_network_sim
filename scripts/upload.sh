@@ -6,6 +6,8 @@ remoteurioverride='ftp://boydorr.gla.ac.uk/scrc/'
 namespace='simple_network_sim_test'
 accessibility='0'
 
+# This script is deliberately repetitious to allow future customization
+
 cd .. #We're in the scripts/ folder
 
 # Commutes
