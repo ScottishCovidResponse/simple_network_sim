@@ -6,6 +6,7 @@ __pycache__/
 .coverage
 
 # Source / output data
+*.h5
 *.csv
 *.dat
 *.xls
@@ -17,7 +18,7 @@ tests/test_data/data_pipeline_inputs/output/**
 sample_input_files/output/*
 access*yaml
 
-# By default, we will ignore any csv files. That's why we need to explicitly
+# By default, we will ignore any csv / h5 files. That's why we need to explicitly
 # tell git that we don't want to ignore files inside the directories below, as
 # they have csv files we do want to include in the repo.
 !sample_input_files/human/**
