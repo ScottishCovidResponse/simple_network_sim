@@ -18,6 +18,7 @@ __pycache__/
 tests/test_data/data_pipeline_inputs/output/**
 sample_input_files/output/*
 access*yaml
+metadata*yaml
 
 # By default, we will ignore any csv / h5 files. That's why we need to explicitly
 # tell git that we don't want to ignore files inside the directories below, as
