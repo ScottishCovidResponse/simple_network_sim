@@ -1,0 +1,9 @@
+data_directory: .
+run_id: data_processing
+fail_on_hash_mismatch: False
+
+write:  
+  - where:
+      data_product: generated_sns_products/movement_multiplier
+    use:
+      filename: generated_sns_products/movement_multiplier/movement_multiplier.h5
