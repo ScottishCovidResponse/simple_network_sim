@@ -1,4 +1,20 @@
 - accessibility: 0
+  component: health_board/age/genders
+  data_product: human/demographics/population/scotland
+  extension: h5
+  filename: human/demographics/population/scotland/1.0.0/1.0.0.h5
+  namespace: SCRC
+  verified_hash: 2b8b4e777034c628ac024aec1425ceb71c9c0cd1
+  version: 1.0.0
+- accessibility: 0
+  component: health_board/age/persons
+  data_product: human/demographics/population/scotland
+  extension: h5
+  filename: human/demographics/population/scotland/1.0.0/1.0.0.h5
+  namespace: SCRC
+  verified_hash: 2b8b4e777034c628ac024aec1425ceb71c9c0cd1
+  version: 1.0.0
+- accessibility: 0
   component: latent-period
   data_product: human/infection/SARS-CoV-2/latent-period
   extension: toml
@@ -8,6 +24,12 @@
   version: 0.1.0
 - doi_or_unique_name: external_object.csv
   filename: human/external_object.csv
+- doi_or_unique_name: external_human/demographics/population/scotland/1.0.0.h5
+  filename: human/demographics/population/scotland/1.0.0.h5
+- doi_or_unique_name: wales_england_pop.csv
+  filename: human/wales_england_pop.csv
+- doi_or_unique_name: https://cmmid.github.io/topics/covid19/reports/20200327_comix_social_contacts.xlsx
+  filename: human/20200327_comix_social_contacts.xlsx
 - doi_or_unique_name: 00462936.csv
   filename: human/external/00462936.csv
 - doi_or_unique_name: wu03buk_oa_wz_v4.csv
