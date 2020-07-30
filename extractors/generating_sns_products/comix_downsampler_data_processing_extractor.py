@@ -48,16 +48,16 @@ def main():
     config_filename = Path(__file__).parent / "data_processing_config.yaml"
     uri = "data_processing_uri"
     git_sha = "data_processing_git_sha"
-    with DataProcessingAPI(config_filename, uri=uri, git_sha=git_sha) as api:
+    with DataProcessingAPI.from_config(config_filename, uri=uri, git_sha=git_sha) as api:
 
         # first get the comix
         comix_external = "https://cmmid.github.io/topics/covid19/reports/20200327_comix_social_contacts.xlsx"
-        with api.read_external_object(comix_external) as file:
+        with api.read_external_object(comix_external, 'only') as file:
             df_comix = pd.read_excel(file, sheet_name="All_contacts_imputed")
         df_comix = df_comix.set_index("Unnamed: 0")
         # then get the population - ONS, and NRS
         ons_external = "wales_england_pop.csv"
-        with api.read_external_object(ons_external) as file:
+        with api.read_external_object(ons_external, 'only') as file:
             ons_pop = pd.read_csv(
                 "human/wales_england_pop.csv", index_col="AGE"
             ).POPULATION

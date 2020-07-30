@@ -34,7 +34,7 @@ def main():
     config_filename = Path(__file__).parent / "data_processing_config.yaml"
     uri = "data_processing_uri"
     git_sha = "data_processing_git_sha"
-    with DataProcessingAPI(config_filename, uri=uri, git_sha=git_sha) as api:
+    with DataProcessingAPI.from_config(config_filename, uri=uri, git_sha=git_sha) as api:
         # The lookup table file below is available externally from
         # https://www2.gov.scot/Resource/0046/00462936.csv
         upward = "00462936.csv"
@@ -42,13 +42,13 @@ def main():
         # government after making an account and agreeing to a EULA for access to safeguarded data
         flows = "wu03buk_oa_wz_v4.csv"
 
-        with api.read_external_object(upward) as file:
+        with api.read_external_object(upward, 'only') as file:
             dfUp = pd.read_csv(file)
 
         dfUp = dfUp[["OutputArea", "DataZone", "InterZone"]]
         dfUp = dfUp.set_index("OutputArea")
 
-        with api.read_external_object(flows) as file:
+        with api.read_external_object(flows, 'only') as file:
             dfMoves = pd.read_csv(
                 file,
                 names=[
