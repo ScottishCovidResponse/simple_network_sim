@@ -13,10 +13,8 @@ That will generate a file called check_pop_table.csv (for convenient sanity-chec
 inside the simple network sim model at generated_sns_products/population_healthboards_scotland
 (https://github.com/ScottishCovidResponse/simple_network_sim)
 """
-from typing import NamedTuple, List
 from pathlib import Path
 from data_pipeline_api.data_processing_api import DataProcessingAPI
-import h5py
 import pandas as pd
 
 
