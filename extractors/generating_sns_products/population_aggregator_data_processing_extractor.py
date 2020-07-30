@@ -22,7 +22,7 @@ def main():
     config_filename = Path(__file__).parent / "data_processing_config.yaml"
     uri = "data_processing_uri"
     git_sha = "data_processing_git_sha"
-    with DataProcessingAPI(config_filename, uri=uri, git_sha=git_sha) as api:
+    with DataProcessingAPI.from_config(config_filename, uri=uri, git_sha=git_sha) as api:
 
         nrs_internal = "human/demographics/population/scotland/1.0.0.h5"
         data_plus_lists = api.read_array(nrs_internal, "health_board/age/genders")

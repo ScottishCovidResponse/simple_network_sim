@@ -31,7 +31,7 @@ from data_pipeline_api.data_processing_api import DataProcessingAPI
 config_filename = Path(__file__).parent / "data_processing_config.yaml"
 uri = "data_processing_uri"
 git_sha = "data_processing_git_sha"
-with DataProcessingAPI(config_filename, uri=uri, git_sha=git_sha) as api:
+with DataProcessingAPI.from_config(config_filename, uri=uri, git_sha=git_sha) as api:
 
     # States: S E A A_2 I H R D
     # We need to generate rates for transitions:
