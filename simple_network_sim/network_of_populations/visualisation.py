@@ -102,7 +102,9 @@ def read_output(data_product: str, path: str) -> pd.DataFrame:
     )
     assert len(outputs) == 1, f"More than one output selected: {outputs}"
 
-    output_path = Path(access_log["data_directory"]) / Path(outputs[0]["access_metadata"]["filename"])
+    output_path = Path(path).parents[0] / \
+        Path(access_log["data_directory"]) / \
+        Path(outputs[0]["access_metadata"]["filename"])
     with open(output_path, "rb") as outbreak_fp:
         return object_file.read_table(outbreak_fp, "outbreak-timeseries")
 
