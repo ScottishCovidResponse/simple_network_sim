@@ -1,29 +1,28 @@
 """
-This package will create the simplified comix matrix needed by simple_network_sim basing itself in the following data:
-
-- The CoMix matrix: https://cmmid.github.io/topics/covid19/reports/20200327_comix_social_contacts.xlsx
-- The Scottish demographics (NRS): ftp://boydorr.gla.ac.uk/scrc/human/demographics/scotland/1.0.0.h5
-- The England & Wales demographics (ONS): https://www.nomisweb.co.uk/api/v01/dataset/NM_2010_1.data.csv (the data was
-  aggregated into the wales_england_pop.csv file)
-metadata.yaml and data_processing_config.yaml should contain pointers to these data
-Python requirements:
-- pandas
-- xlrd
-- h5py
-
-How to run this module:
-
-Assuming you have your environment setup with conda, this script can be run with
-
-```
-python comix_downsampler_data_processing_extractor.py
-```
-
-That will generate a file called mixing-matrix.csv (for convenient sanity-checking), and a .h5 file with the same information for use
-inside the simple network sim model
-(https://github.com/ScottishCovidResponse/simple_network_sim)
+    This package will create the simplified comix matrix needed by simple_network_sim basing itself in the following data:
+    
+    - The CoMix matrix: https://cmmid.github.io/topics/covid19/reports/20200327_comix_social_contacts.xlsx
+    - The Scottish demographics (NRS): ftp://boydorr.gla.ac.uk/scrc/human/demographics/scotland/1.0.0.h5
+    - The England & Wales demographics (ONS): https://www.nomisweb.co.uk/api/v01/dataset/NM_2010_1.data.csv (the data was
+      aggregated into the wales_england_pop.csv file)
+    metadata.yaml and data_processing_config.yaml should contain pointers to these data
+    Python requirements:
+    - pandas
+    - xlrd
+    - h5py
+    
+    How to run this module:
+    
+    Assuming you have your environment setup with conda, this script can be run with
+    
+    ```
+    python comix_downsampler_data_processing_extractor.py
+    ```
+    
+    That will generate a file called mixing-matrix.csv (for convenient sanity-checking), and a .h5 file with the same information for use
+    inside the simple network sim model
+    (https://github.com/ScottishCovidResponse/simple_network_sim)
 """
-import io
 from typing import NamedTuple, List
 
 from pathlib import Path
