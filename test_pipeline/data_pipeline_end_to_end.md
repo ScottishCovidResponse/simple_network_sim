@@ -14,7 +14,7 @@ pip install git+https://github.com/ScottishCovidResponse/data_pipeline_api@a2a53
 3. Run the model `python -m simple_network_sim.sampleUseOfModel -c test_pipeline/test_config.yaml` and visualise the results: `python -m simple_network_sim.network_of_populations.visualisation test_pipeline/access-*.yaml`. Check they are similar to a local run `python -m simple_network_sim.sampleUseOfModel`.
 4. Upload the results `scripts/pipeline_upload_output.sh`
 
-I need to add this to the config block in access*yaml:
+For step 4, I need to add this to the config block in access*yaml:
 
 ```
 model_version: 0.0.1
@@ -28,3 +28,5 @@ and
 ```
 
 to the `access_metadata:` in the `write` block.
+
+It ends up with an error, but the output is present on the database (albeit with the wrong FTP path at present).
