@@ -3,6 +3,16 @@ access_log: access-{run_id}.yaml
 fail_on_hash_mismatch: True
 namespace: simple_network_sim_test
 
+run_metadata:
+  model_version: 0.0.1
+  model_name: simple_network_sim
+  description: Initial end-to-end test
+  data_registry_url: https://data.scrc.uk/api/
+  default_output_namespace: simple_network_sim_test
+  submission_script: scripts/pipeline_submission.sh
+  remote_uri: ssh://boydorr.gla.ac.uk/srv/ftp/scrc/
+  remote_uri_override: ftp://boydorr.gla.ac.uk/scrc/
+
 read:
  - where:
      data_product: human/compartment-transition
