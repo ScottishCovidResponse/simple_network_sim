@@ -1,0 +1,16 @@
+name: extractors
+channels:
+  - defaults
+  - scottishcovidresponse
+dependencies:
+  # install dependencies
+  - python=3.7
+  - pandas=1.0.3
+  - data_pipeline_api=0.7.0
+  - xlrd=1.2.0
+  - h5py=2.10.0
+
+  # test dependencies
+  - coverage=5.0
+  - pytest=5.4.1
+  - pytest-cov=2.8.1
