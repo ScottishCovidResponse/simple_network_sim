@@ -15,6 +15,7 @@ from typing import Optional, List, NamedTuple, Dict, Set
 from data_pipeline_api import standard_api  # type: ignore
 import numpy as np  # type: ignore
 import pandas as pd  # type: ignore
+import networkx as nx  # type: ignore
 
 from simple_network_sim.common import IssueSeverity, log_issue
 from . import common, loaders
@@ -42,11 +43,9 @@ logger = logging.getLogger(__name__)
     #          receive it the false impression they can just append new issues there
     # """
 
-def generate_education_network_and_pop(bubble_size=24, number_bubbles = 100, between_bubble_prob=0.01, seed=None):
+def generate_education_network_and_pop(bubble_size=24, number_bubbles = 100, between_bubble_prob=0.10, seed=None):
     #  need to generate a pandas dataframe
-    graph = nx.fast_gnp_random_graph(number_bubbles, between_bubble_prob, seed=seed)
-    print(graph.edges())
-    
+    graph = nx.fast_gnp_random_graph(number_bubbles, between_bubble_prob, seed=seed)    
     population = pd.DataFrame(columns=['Health_Board', "Sex", "Age", "Total"])
     i = 0
     for node in graph.nodes():
@@ -86,23 +85,26 @@ def main(argv):
     elif info.is_dirty:
         log_issue(logger, "Running out of a dirty git repo", IssueSeverity.HIGH, issues)
     
-    pop, conn = generate_education_network_and_pop()
+    pop, conn = generate_education_network_and_pop(bubble_size=50, number_bubbles = 4, between_bubble_prob=0.5)
+    print(pop)
     with standard_api.StandardAPI.from_config(args.data_pipeline_config, uri=info.uri, git_sha=info.git_sha) as store:
         network, new_issues = ss.createNetworkOfPopulation(
-            store.read_table("human/compartment-transition", "compartment-transition"),
+            pd.read_csv('education_input/compartment_transition_rates_for_education_noTesting.csv'),
             pop,
             conn,
-            store.read_table("human/mixing-matrix", "mixing-matrix"),
+            pd.read_csv('education_input/education_mixing_matrix.csv'),
             store.read_table("human/infectious-compartments", "infectious-compartments"),
             store.read_table("human/infection-probability", "infection-probability"),
-            store.read_table("human/initial-infections", "initial-infections"),
+            pd.read_csv('education_input/education_initial_infections.csv'),
             store.read_table("human/trials", "trials"),
             store.read_table("human/start-end-date", "start-end-date"),
             None,
             store.read_table("human/stochastic-mode", "stochastic-mode"),
         )
         issues.extend(new_issues)
-
+        
+        print(network.graph)
+        
         random_seed = loaders.readRandomSeed(store.read_table("human/random-seed", "random-seed"))
         results = runSimulation(network, random_seed, issues=issues, max_workers=None if not args.workers else args.workers)
         aggregated = aggregateResults(results)
@@ -127,7 +129,7 @@ def main(argv):
         logger.info("Took %.2fs to run the simulation.", time.time() - t0)
         logger.info(
             "Use `python -m simple_network_sim.network_of_populations.visualisation -h` to find out how to take "
-            "a peak what you just ran. You will need use the access-<hash>.yaml file that was created by this run."
+            "a peek what you just ran. You will need use the access-<hash>.yaml file that was created by this run."
         )
 
 
@@ -309,7 +311,7 @@ def build_args(argv):
     parser.add_argument(
         "-c",
         "--data-pipeline-config",
-        default="config_use-for-students.yaml",
+        default="config_education_hack.yaml",
         help="Base directory with the input parameters",
     )
     parser.add_argument(

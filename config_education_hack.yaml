@@ -5,7 +5,7 @@ read:
  - where:
      data_product: human/compartment-transition
    use:
-     version: 3.0.0
+     version: 2.0.0
  - where:
      data_product: human/population
    use:
@@ -13,11 +13,11 @@ read:
  - where:
      data_product: human/commutes
    use:
-     version: 3.0.0
+     version: 1.0.0
  - where:
      data_product: human/mixing-matrix
    use:
-     version: 1.0.0
+     version: 2.0.0
  - where:
      data_product: human/infectious-compartments
    use:
@@ -25,15 +25,15 @@ read:
  - where:
      data_product: human/infection-probability
    use:
-     version: 1.0.0
+     version: 2.0.0
  - where:
      data_product: human/movement-multipliers
    use:
-     version: 1.0.0
+     version: 2.0.0
  - where:
      data_product: human/initial-infections
    use:
-     version: 1.0.0
+     version: 2.0.0
  - where:
      data_product: human/trials
    use:
@@ -41,7 +41,7 @@ read:
  - where:
      data_product: human/start-end-date
    use:
-     version: 1.0.0
+     version: 2.0.0
  - where:
      data_product: human/stochastic-mode
    use:
@@ -50,3 +50,11 @@ read:
      data_product: human/random-state
    use:
      version: 1.0.0
+ - where:
+     data_product: human/abcsmc-parameters
+   use:
+     version: 1.0.0
+ - where:
+     data_product: human/historical-deaths
+   use:
+     version: 2.0.0
