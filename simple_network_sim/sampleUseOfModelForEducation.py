@@ -23,6 +23,45 @@ from . import network_of_populations as ss
 # Default logger, used if module not called as __main__
 logger = logging.getLogger(__name__)
 
+    # """Create the network of the population, loading data from files.
+    # 
+    # :param compartment_transition_table: pd.Dataframe specifying the transition rates between infected compartments.
+    # :param population_table: pd.Dataframe with the population size in each region by gender and age.
+    # :param commutes_table: pd.Dataframe with the movements between regions.
+    # :param mixing_matrix_table: pd.Dataframe with the age infection matrix.
+    # :param infectious_states: States that are considered infectious
+    # :param infection_prob: Probability that a given contact will result in an infection
+    # :param initial_infections: Initial infections of the population at time 0
+    # :param trials: Number of trials for the model
+    # :param start_end_date: Starting and ending dates of the model
+    # :param movement_multipliers_table: pd.Dataframe with the movement multipliers. This may be None, in
+    #                                    which case no multipliers are applied to the movements.
+    # :param stochastic_mode: Use stochastic mode for the model
+    # :return: A tuple with the constructed network and a list of any issues found. Although it may look convenient,
+    #          storing this list inside of NetworkOfPopulation is not a good idea, as that may give the functions that
+    #          receive it the false impression they can just append new issues there
+    # """
+
+def generate_education_network_and_pop(bubble_size=24, number_bubbles = 100, between_bubble_prob=0.01, seed=None):
+    #  need to generate a pandas dataframe
+    graph = nx.fast_gnp_random_graph(number_bubbles, between_bubble_prob, seed=seed)
+    print(graph.edges())
+    
+    population = pd.DataFrame(columns=['Health_Board', "Sex", "Age", "Total"])
+    i = 0
+    for node in graph.nodes():
+        population.loc[i] = ['bubble_' + str(node), 'Female', 'student', bubble_size]
+        i = i+1
+    i = 0
+    
+    connections = pd.DataFrame(columns=['source', 'target', 'weight', 'delta_adjustment'])
+    for (u, v) in graph.edges():
+        connections.loc[i] = ['bubble_' + str(u), 'bubble_' + str(v), 1, 1.0]
+        connections.loc[i+1] = ['bubble_' + str(v), 'bubble_' + str(u), 1, 1.0]
+        i = i+2
+        
+    return population, connections
+
 
 def main(argv):
     """
@@ -46,18 +85,20 @@ def main(argv):
         )
     elif info.is_dirty:
         log_issue(logger, "Running out of a dirty git repo", IssueSeverity.HIGH, issues)
+    
+    pop, conn = generate_education_network_and_pop()
     with standard_api.StandardAPI.from_config(args.data_pipeline_config, uri=info.uri, git_sha=info.git_sha) as store:
         network, new_issues = ss.createNetworkOfPopulation(
             store.read_table("human/compartment-transition", "compartment-transition"),
-            store.read_table("human/population", "population"),
-            store.read_table("human/commutes", "commutes"),
+            pop,
+            conn,
             store.read_table("human/mixing-matrix", "mixing-matrix"),
             store.read_table("human/infectious-compartments", "infectious-compartments"),
             store.read_table("human/infection-probability", "infection-probability"),
             store.read_table("human/initial-infections", "initial-infections"),
             store.read_table("human/trials", "trials"),
             store.read_table("human/start-end-date", "start-end-date"),
-            store.read_table("human/movement-multipliers", "movement-multipliers") if args.use_movement_multipliers else None,
+            None,
             store.read_table("human/stochastic-mode", "stochastic-mode"),
         )
         issues.extend(new_issues)
@@ -268,7 +309,7 @@ def build_args(argv):
     parser.add_argument(
         "-c",
         "--data-pipeline-config",
-        default="config.yaml",
+        default="config_use-for-students.yaml",
         help="Base directory with the input parameters",
     )
     parser.add_argument(
