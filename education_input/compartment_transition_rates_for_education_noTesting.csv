@@ -1,0 +1,11 @@
+﻿age,src,dst,rate
+student,E,E,0.805068226
+student,E,A,0.194931774
+student,E,P_T,0
+student,A,A,0.875
+student,A,I,0.125
+student,A,P_T,0
+student,I,I,0.925373134
+student,I,R,0.074626866
+student,I,P_T,0
+student,R,R,1
