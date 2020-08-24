@@ -55,6 +55,7 @@ class NetworkOfPopulation(NamedTuple):
     startDate: dt.date
     endDate: dt.date
     stochastic: bool
+    falsePositiveRate: float
 
 
 def dateRange(startDate: dt.date, endDate: dt.date) -> Iterable[dt.date]:
@@ -122,7 +123,9 @@ def basicSimulationInternalAgeStructure(
     logger.debug("Date (%s/%s). Status: %s", network.startDate, network.endDate,
                  Lazy(lambda: df.groupby("state").total.sum().to_dict()))
     history.append(df)
+
     for date in dateRange(network.startDate, network.endDate):
+        
         multipliers = network.movementMultipliers.get(date, multipliers)
         infectionProb = network.infectionProb.get(date, infectionProb)
 
@@ -132,7 +135,8 @@ def basicSimulationInternalAgeStructure(
             network.stochastic,
             generator,
         )
-
+        
+        
         internalContacts = getInternalInfectiousContacts(
             current,
             network.mixingMatrix,
@@ -141,6 +145,8 @@ def basicSimulationInternalAgeStructure(
             network.stochastic,
             generator,
         )
+        
+        
         externalContacts = getExternalInfectiousContacts(
             network.graph,
             current,
@@ -152,6 +158,7 @@ def basicSimulationInternalAgeStructure(
         )
         contacts = mergeContacts(internalContacts, externalContacts)
 
+        
         current = createNextStep(
             progression,
             contacts,
@@ -159,8 +166,10 @@ def basicSimulationInternalAgeStructure(
             infectionProb,
             network.stochastic,
             generator,
+            network.falsePositiveRate
         )
 
+        
         df = nodesToPandas(date, current)
         logger.debug(
             "Date (%s/%s). Status: %s",
@@ -169,6 +178,7 @@ def basicSimulationInternalAgeStructure(
             Lazy(lambda: df.groupby("state").total.sum().to_dict())
         )
         history.append(df)
+        # print(df)
 
     return (pd.concat(history, copy=False, ignore_index=True), issues)
 
@@ -740,7 +750,7 @@ def getInternalProgressionAllNodes(
             stochastic,
             random_state
         )
-
+    
     return progression
 
 
@@ -801,6 +811,7 @@ def getInfectious(
 # The functions below are the only operations that need to know about the actual state values.
 SUSCEPTIBLE_STATE = "S"
 EXPOSED_STATE = "E"
+FALSE_POS_STATE = "P_F"
 
 
 # pylint: disable=too-many-arguments
@@ -816,6 +827,7 @@ def createNetworkOfPopulation(
         start_end_date: pd.DataFrame,
         movement_multipliers_table: pd.DataFrame = None,
         stochastic_mode: pd.DataFrame = None,
+        false_positive_rate: float = 0.0
 ) -> Tuple[NetworkOfPopulation, List[standard_api.Issue]]:
     """Create the network of the population, loading data from files.
 
@@ -853,7 +865,7 @@ def createNetworkOfPopulation(
     # Check some requirements for this particular model to work with the progression matrix
     all_states = set()
     for states in progression.values():
-        assert SUSCEPTIBLE_STATE not in states, "progression from susceptible state is not allowed"
+        # assert SUSCEPTIBLE_STATE not in states, "progression from susceptible state is not allowed"
         for state, nextStates in states.items():
             for nextState in nextStates:
                 all_states.add(state)
@@ -924,6 +936,7 @@ def createNetworkOfPopulation(
         startDate=start_date,
         endDate=end_date,
         stochastic=stochastic_mode,
+        falsePositiveRate=false_positive_rate
     )
     return (nop, issues)
 
@@ -937,6 +950,7 @@ def createNextStep(
         infectionProb: float,
         stochastic: bool,
         random_state: Optional[np.random.Generator],
+        false_positive_rate: float
 ) -> Dict[NodeName, Dict[Tuple[Age, Compartment], float]]:
     """
     Update the current state of each regions population by allowing infected individuals
@@ -971,9 +985,12 @@ def createNextStep(
     for name, node in progression.items():
         for key, value in node.items():
             # Note that the progression is responsible for populating every other state
-            assert key[1] != SUSCEPTIBLE_STATE, "Susceptibles can't be part of progression states"
-            nextStep[name][key] = value
-
+            # assert key[1] != SUSCEPTIBLE_STATE, "Susceptibles can't be part of progression states"
+            if key[1] != SUSCEPTIBLE_STATE:
+               nextStep[name][key] = value
+            else: 
+               nextStep[name][key] = nextStep[name][key] + value
+               
     for name, nodeByAge in infectiousContacts.items():
         for age, contacts in nodeByAge.items():
             exposed = calculateExposed(
@@ -984,7 +1001,10 @@ def createNextStep(
                 random_state,
             )
             expose(age, exposed, nextStep[name])
-
+    
+    for name, node in nextStep.items():
+        _doTesting(false_positive_rate, node)
+        
     return nextStep
 
 
@@ -1065,6 +1085,11 @@ def expose(age: Age, exposed: float, region: Dict[Tuple[Age, Compartment], float
     :param exposed: The number of exposed individuals.
     :param region: A region, with all the (age, state) tuples.
     """
+    # print(region)
+    # if region[(age, SUSCEPTIBLE_STATE)] >= exposed:
+    #     print('WARNING - 'f"S:{region[(age, SUSCEPTIBLE_STATE)]} < E:{exposed}")
+    #     exposed = region[(age, SUSCEPTIBLE_STATE)]
+#         
     assert region[(age, SUSCEPTIBLE_STATE)] >= exposed, f"S:{region[(age, SUSCEPTIBLE_STATE)]} < E:{exposed}"
 
     region[(age, EXPOSED_STATE)] += exposed
@@ -1094,3 +1119,16 @@ def randomlyInfectRegions(
             infections[regionID][age] = infected
 
     return infections
+
+def _doTesting(false_pos, region: Dict[Tuple[Age, Compartment], float], lockdown_regions=True):
+#     DANGER - this will modify the next-step in place.
+# Also, won't work in the stochastic version yet
+    for key, value in region.items():
+        if key[1] == SUSCEPTIBLE_STATE:
+            num_false_pos = false_pos*value
+            region[key] = value - num_false_pos
+            region[(key[0], FALSE_POS_STATE)] = region[(key[0], FALSE_POS_STATE)] + num_false_pos
+            
+
+            
+    
