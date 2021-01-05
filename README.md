@@ -97,8 +97,7 @@ your. You will then need to validate the newly created file manually. If you did
 regression tests when you made your changes, then you shouldn't do that, but find out what caused the test to fail
 (running the test multiple times will always result in fail in this scenario).
 
-If you're creating a regression test, the first time you run it, it will fail. You should then manually check the
-resulting file before creating a PR. The second time you run your test in this scenario, it will succeed.
+If you're creating a regression test, the first time you run it, it will fail. You should then manually check the resulting file before creating a PR. The second time you run your test in this scenario, it will succeed.
 
 ## Usage
 
