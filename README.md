@@ -28,6 +28,12 @@ Please read our [contributing information](contributing.md).
 
 ## Installation
 
+Clone this repository:
+
+```
+git clone https://github.com/ScottishCovidResponse/simple_network_sim.git
+```
+
 Install [miniconda](https://docs.conda.io/en/latest/miniconda.html) (it also works with [anaconda](https://docs.anaconda.com/anaconda/install/), but we do not need the extra packages). With conda installed, run the following commands to create the virtual environment and activate it:
 
 ```
@@ -91,8 +97,7 @@ your. You will then need to validate the newly created file manually. If you did
 regression tests when you made your changes, then you shouldn't do that, but find out what caused the test to fail
 (running the test multiple times will always result in fail in this scenario).
 
-If you're creating a regression test, the first time you run it, it will fail. You should then manually check the
-resulting file before creating a PR. The second time you run your test in this scenario, it will succeed.
+If you're creating a regression test, the first time you run it, it will fail. You should then manually check the resulting file before creating a PR. The second time you run your test in this scenario, it will succeed.
 
 ## Usage
 
